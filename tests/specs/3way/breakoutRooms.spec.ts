@@ -9,6 +9,8 @@ const LIST_ITEM_CONTAINER = 'list-item-container';
 
 describe('BreakoutRooms', () => {
     it('check support', async () => {
+        await hangupAllParticipants();
+
         await ensureTwoParticipants(ctx);
 
         if (!await ctx.p1.isBreakoutRoomsSupported()) {
@@ -309,7 +311,7 @@ describe('BreakoutRooms', () => {
     });
 
     it('send participants to breakout room', async () => {
-        await Promise.all([ ctx.p1.hangup(), ctx.p2.hangup(), ctx.p3.hangup() ]);
+        await hangupAllParticipants();
 
         // because the participants rejoin so fast, the meeting is not properly ended,
         // so the previous breakout rooms would still be there.
@@ -473,3 +475,12 @@ describe('BreakoutRooms', () => {
         await checkSubject(p2, myNewRoomName);
     });
 });
+
+
+/**
+ * Hangs up all participants (p1, p2 and p3)
+ * @returns {Promise<void>}
+ */
+function hangupAllParticipants() {
+    return Promise.all([ ctx.p1?.hangup(), ctx.p2?.hangup(), ctx.p3?.hangup() ]);
+}

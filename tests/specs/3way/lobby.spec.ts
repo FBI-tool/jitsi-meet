@@ -5,9 +5,13 @@ import type PreMeetingScreen from '../../pageobjects/PreMeetingScreen';
 
 describe('Lobby', () => {
     it('joining the meeting', async () => {
+        await hangupAllParticipants();
+
         await ensureOneParticipant(ctx);
 
-        if (!await ctx.p1.driver.execute(() => APP.conference._room.isLobbySupported())) {
+        if (!await ctx.p1.execute(() => APP?.conference?._room?.isLobbySupported())) {
+            console.log('Lobby is not supported! Skiping lobby test!');
+
             ctx.skipSuiteTests = true;
         }
     });
@@ -191,7 +195,7 @@ describe('Lobby', () => {
     });
 
     it('change of moderators in lobby', async () => {
-        await Promise.all([ ctx.p1.hangup(), ctx.p2.hangup(), ctx.p3.hangup() ]);
+        await hangupAllParticipants();
 
         await ensureTwoParticipants(ctx);
 
@@ -219,7 +223,7 @@ describe('Lobby', () => {
         // here the important check is whether the moderator sees the knocking participant
         await enterLobby(p2, false);
 
-        await Promise.all([ ctx.p1.hangup(), ctx.p2.hangup(), ctx.p3.hangup() ]);
+        await hangupAllParticipants();
     });
 
     it('shared password', async () => {
@@ -263,7 +267,7 @@ describe('Lobby', () => {
     });
 
     it('enable with more than two participants', async () => {
-        await Promise.all([ ctx.p1.hangup(), ctx.p2.hangup(), ctx.p3.hangup() ]);
+        await hangupAllParticipants();
 
 
         await ensureThreeParticipants(ctx);
@@ -484,4 +488,13 @@ async function enterLobby(participant: Participant, enterDisplayName = false, us
     expect(await screen.isLobbyRoomJoined()).toBe(true);
 
     return name;
+}
+
+
+/**
+ * Hangs up all participants (p1, p2 and p3)
+ * @returns {Promise<void>}
+ */
+function hangupAllParticipants() {
+    return Promise.all([ ctx.p1?.hangup(), ctx.p2?.hangup(), ctx.p3?.hangup() ]);
 }
